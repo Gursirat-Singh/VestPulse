@@ -2,6 +2,7 @@
   <img src="app/logo.png" alt="VestPulse Logo" width="120" />
   <h1>VestPulse</h1>
   <p><strong>AI-Powered Investment Research Agent</strong></p>
+  <p><strong><a href="https://vest-pulse.vercel.app/" target="_blank">Live Deployment: vest-pulse.vercel.app</a></strong></p>
 
   <p>
     <img src="https://img.shields.io/badge/Next.js-black?style=for-the-badge&logo=next.js&logoColor=white" alt="Next.js" />
@@ -34,6 +35,17 @@ By leveraging advanced large language models (LLMs) orchestrated via a directed 
 - [x] **Real-time Progress Streaming**: Employs Server-Sent Events (SSE) to stream the AI agent's internal thought process and node transitions directly to the UI.
 - [x] **Security Hardening**: Includes strict Zod input validation, LLM-based query verification to prevent prompt injections, and Upstash Redis rate limiting.
 - [x] **Graceful API Degradation**: Implements automated fallbacks if primary financial providers rate-limit or fail, ensuring continuous pipeline execution.
+
+## Key Decisions & Trade-offs
+
+*(For detailed architectural justifications, see [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md))*
+
+- **Next.js & Serverless**: Adopted Next.js App Router to unify frontend and backend, using Serverless API Routes to securely mask API keys and stream Server-Sent Events (SSE).
+- **LangGraph Orchestration**: Chose LangGraph over linear chains to enable deterministic state transitions, native parallel execution of data-gathering nodes, and localized retry logic.
+- **Multi-Provider Fallback**: Concurrently fetches FMP and Yahoo Finance, merging payloads and falling back to Finnhub if completeness drops below 80%, ensuring resilience.
+- **Client-Side PDF Generation**: Offloaded PDF rendering to the client browser (`html2canvas`/`jspdf`) to eliminate heavy Puppeteer headless browser compute overhead on Vercel.
+- **Server-Sent Events (SSE)**: Used unidirectional SSE rather than WebSockets to progressively unlock the UI and mask the 15-30 second LLM execution latency.
+- **Graceful Degradation**: Designed the pipeline to catch third-party API timeouts (e.g., Tavily news) without crashing, allowing the LLM to synthesize a report with surviving data.
 
 ## 4. Architecture
 
@@ -161,8 +173,8 @@ investment-research-agent/
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/yourusername/investment-research-agent.git
-cd investment-research-agent
+git clone https://github.com/Gursirat-Singh/VestPulse.git
+cd VestPulse
 ```
 
 ### 2. Install dependencies
@@ -242,8 +254,11 @@ VestPulse is designed for production deployment, inherently protecting against m
 - **DOM Pagination Strategy**: The PDF generation engine operates off-screen, rendering nodes sequentially based on measured bounding box heights to ensure charts and tables never break across pages.
 - **Next.js App Router**: Utilizes modern React paradigms for minimal bundle sizes and fast initial page loads.
 
-## 15. Example Workflow
+## 15. Example Runs
 
+*(For full visual workflows and edge-case handling, see [EXAMPLES.md](EXAMPLES.md))*
+
+### 1. Apple (AAPL) - Mega-Cap Tech
 **Input**: User enters `Apple`
 
 **Research Phase**:
@@ -255,11 +270,40 @@ VestPulse is designed for production deployment, inherently protecting against m
 The LLM evaluates Apple's strong free cash flow against regulatory headwinds (DOJ antitrust, EU fines). 
 
 **Report Generation**:
-VestPulse generates a structured dashboard:
 - **Decision**: INVEST
 - **Confidence**: 85%
 - **Key Risks**: Supply chain dependencies, Regulatory scrutiny.
 - **Competitors**: Microsoft, Alphabet, Samsung.
+
+### 2. NVIDIA (NVDA) - High Growth Public Equity
+**Input**: User enters `NVIDIA`
+
+**Research Phase**: 
+- Identifies NVDA, pulling dense news cycles regarding semiconductor demand and AI datacenter growth. FMP returns 100% complete metrics.
+
+**Analysis Phase**: 
+- Synthesizes evidence driven by exponential revenue growth and the distinct CUDA software moat.
+
+**Report Generation**:
+- **Decision**: INVEST
+- **Confidence**: 92%
+- **Key Risks**: Geopolitical export restrictions to China, cyclical semiconductor demand.
+- **Competitors**: AMD, Intel.
+
+### 3. Stripe - Private Company
+**Input**: User enters `Stripe`
+
+**Research Phase**: 
+- The graph identifies Stripe as private (`isPublic: false`). Safely skips financial API nodes to save costs. Relies entirely on news, competitors, and risks.
+
+**Analysis Phase**: 
+- Synthesizes a comprehensive investment thesis based on private market valuations and macro payment trends.
+
+**Report Generation**:
+- **Decision**: HOLD
+- **Confidence**: 70%
+- **Key Risks**: IPO market conditions, intense competition in payments sector.
+- **Competitors**: Adyen, PayPal.
 
 ## 16. Screenshots
 
