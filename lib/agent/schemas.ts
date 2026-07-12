@@ -1,11 +1,5 @@
 import { z } from "zod";
 
-export const ResolveCompanySchema = z.object({
-  resolved: z.boolean(),
-  name: z.string(),
-  ticker: z.string().nullable().optional(),
-  isPublic: z.boolean(),
-});
 
 export const QualitativeOutputSchema = z.object({
   newsSummary: z.string(),
@@ -16,7 +10,7 @@ export const QualitativeOutputSchema = z.object({
   keyRisks: z.array(z.string()).min(2).max(5),
 });
 
-export const FactorScoreSchema = z.object({
+const FactorScoreSchema = z.object({
   score: z.number().min(0).max(100),
   explanation: z.string(),
   evidence: z.string(),

@@ -8,7 +8,7 @@ export interface CompletenessReport {
 }
 
 // Helper to determine if a value is valid (non-null, non-undefined, non-empty, non-N/A, non-NaN, non-empty object/array)
-export function isValidValue(val: any, isNumericFieldWithZeroInvalid: boolean = false): boolean {
+function isValidValue(val: any, isNumericFieldWithZeroInvalid: boolean = false): boolean {
   if (val === null || val === undefined) return false;
   if (typeof val === "number" && isNaN(val)) return false;
   if (typeof val === "string") {

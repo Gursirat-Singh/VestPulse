@@ -1,6 +1,6 @@
   import { z } from "zod";
 
-  export function isMultipleCompanyQuery(input: string): boolean {
+  function isMultipleCompanyQuery(input: string): boolean {
     // 1. Explicit separators
     if (/[,\/|]/.test(input)) return true;
     if (/\b(vs\.?|versus|and)\b/i.test(input)) return true;

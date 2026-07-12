@@ -1,4 +1,4 @@
-import { AgentStateData } from "../types";
+import type { AgentStateData } from "../types";
 
 export interface HistoryItem {
   companyName: string;
@@ -16,10 +16,10 @@ export function getHistory(): HistoryItem[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return [];
-    
+
     const parsed: HistoryItem[] = JSON.parse(raw);
     const now = new Date().getTime();
-    
+
     // Filter items within last 1 hour (3600000 ms)
     const filtered = parsed.filter(item => {
       const itemTime = new Date(item.timestamp).getTime();
@@ -32,7 +32,9 @@ export function getHistory(): HistoryItem[] {
 
     return filtered;
   } catch (e) {
-    console.error("Failed to read history from localStorage", e);
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Failed to save history to localStorage", e);
+    }
     return [];
   }
 }
@@ -45,17 +47,19 @@ export function saveHistoryItem(item: Omit<HistoryItem, "timestamp">): HistoryIt
     const filtered = history.filter(
       (h) => h.companyName.toLowerCase() !== item.companyName.toLowerCase()
     );
-    
+
     const newItem: HistoryItem = {
       ...item,
       timestamp: new Date().toISOString(),
     };
-    
+
     const updated = [newItem, ...filtered].slice(0, 50);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
     return updated;
   } catch (e) {
-    console.error("Failed to save history to localStorage", e);
+    if (process.env.NODE_ENV !== "production") {
+      console.error("Failed to read history from localStorage", e);
+    }
     return [];
   }
 }

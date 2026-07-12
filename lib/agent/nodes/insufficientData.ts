@@ -1,12 +1,19 @@
 import { getLLM } from "../../llm";
 import { AgentState } from "../state";
-import { INSUFFICIENT_DATA_PROMPT } from "../prompts";
 
 /**
  * insufficientData node:
  * Handles fallback cases when a company cannot be resolved or does not have sufficient public profile
  * to execute the standard research tasks.
  */
+const INSUFFICIENT_DATA_PROMPT = `
+You are an investment analyst.
+The user requested research on "{companyName}", but we could not resolve it as a known researchable entity or there is insufficient public data available.
+
+Generate a polite markdown message explaining:
+1. Why the research could not proceed (lack of public news, ticker, or financial data).
+2. What input they might try instead (e.g. using a correct public ticker or well-known name).
+`;
 export async function insufficientData(state: typeof AgentState.State): Promise<Partial<typeof AgentState.State>> {
   console.log(`[insufficientData] Handled insufficient data path for query: "${state.companyName}"`);
   
