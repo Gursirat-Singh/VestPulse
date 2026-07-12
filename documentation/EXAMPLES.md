@@ -22,10 +22,10 @@ NVIDIA represents a standard execution of the VestPulse pipeline on a high-profi
 - **Risk Analysis**: Flags geopolitical export restrictions (e.g., China) as high-severity operational risks.
 - **Generated Report**: The LLM constructs a polished, Markdown-formatted executive summary synthesizing the bull and bear cases.
 
-![NVIDIA Dashboard](nvidiahome.png)
+![NVIDIA Dashboard](../ScreenShots/nvidiahome.png)
 *Figure 1.1: The complete interactive research dashboard for NVIDIA.*
 
-![NVIDIA PDF](pdf.png)
+![NVIDIA PDF](../ScreenShots/pdf.png)
 *Figure 1.2: The paginated PDF export generated dynamically via html2canvas.*
 
 ---
@@ -40,7 +40,7 @@ Apple serves as an excellent baseline validation example due to its immense mark
 - **Validation**: Testing Apple validates that the FMP and Yahoo Finance APIs accurately merge data on highly traded blue-chip stocks without rate-limiting exceptions.
 - **Execution Highlights**: Given Apple's extensive history, the Recharts historical pricing arrays map perfectly. The risk analysis typically focuses on regulatory headwinds (e.g., EU antitrust probes) rather than existential financial risks. 
 
-![Apple Dashboard](dashboard.png)
+![Apple Dashboard](../ScreenShots/dashboard.png)
 *Figure 2.1: Apple's financial aggregates and live charting.*
 
 ---
@@ -56,7 +56,7 @@ VestPulse is engineered to support international markets. Searching for major in
 - **Indian Market Support**: Yahoo Finance serves as the primary data provider here, as FMP occasionally lacks deep fundamental coverage for non-US listings. The financial orchestrator seamlessly pivots to prioritize the Yahoo payload.
 - **News and Competitors**: Tavily successfully scrapes regional Indian news portals, assessing local market dominance in telecommunications (Jio) and retail.
 
-![Reliance Dashboard](reliance.png)
+![Reliance Dashboard](../ScreenShots/reliance.png)
 *Figure 3.1: Reliance Industries dashboard, demonstrating international ticker resolution.*
 
 ---
@@ -72,7 +72,7 @@ Zomato provides an excellent test case for graceful degradation and partial data
 - **Graceful Handling**: The financial orchestrator calculates a completeness score (e.g., 65%). It triggers a smart-retry via Finnhub. Even if some fields remain empty, the system does not crash.
 - **Dashboard Output**: Missing metrics display safely as "N/A" in the grid. The LLM is explicitly prompted not to hallucinate missing data, ensuring the final report acknowledges the lack of available historical fundamentals.
 
-![Zomato Dashboard](zomato.png)
+![Zomato Dashboard](../ScreenShots/zomato.png)
 *Figure 4.1: Graceful degradation in the Zomato financial metrics table.*
 
 ---
@@ -89,7 +89,7 @@ Stripe is a massive, highly valued technology company, but it is entirely privat
 - **AI Reasoning**: The pipeline relies entirely on the `gatherNews`, `gatherCompetitors`, and `gatherRisks` nodes.
 - **Dashboard Differences**: The financial grid renders empty, but the LLM successfully synthesizes a comprehensive investment thesis based on private market valuations, competitor trajectories (e.g., Adyen, PayPal), and macro payments trends.
 
-![Stripe Dashboard](stripe.png)
+![Stripe Dashboard](../ScreenShots/stripe.png)
 *Figure 5.1: Private company analysis bypassing the quantitative data nodes.*
 
 ---
@@ -106,7 +106,7 @@ Testing purely fictitious or nonsensical entities is critical for preventing LLM
 - **Graceful Handling**: The graph instantly routes to the `insufficientData` node. The heavy data-gathering APIs (Tavily, FMP) are completely bypassed.
 - **Dashboard**: The UI renders a clean, localized error state: "No such company found," rather than a broken, half-rendered dashboard.
 
-![Unknown Entity Dashboard](unknownCompany.png)
+![Unknown Entity Dashboard](../ScreenShots/unknownCompany.png)
 *Figure 6.1: The isolated error state when an unknown entity is provided.*
 
 ---
@@ -117,11 +117,11 @@ VestPulse employs rigorous edge validation and LLM verification to neutralize ma
 
 | Input Payload | Expected Behaviour | Screenshot |
 | :--- | :--- | :--- |
-| `<script>alert(1)</script>` | Rejected by Zod regex rules on the `/api/research` API edge. Returns HTTP 400. | ![XSS Block](XSS_Block.png) |
-| `DROP TABLE users` | Handled by LLM entity verification. Identified as non-financial. Graph routes to `insufficientData`. | ![SQLi Block](SQLI_Block.png) |
-| `Apple Tesla` | Intercepted by multi-company heuristic in Zod. Instructs the user to search one entity at a time. | ![Multi Block](Multi_Block.png) |
-| `[5000-character string]` | Rejected by Zod maximum length constraint (100). Prevents Gemini token exhaustion. | ![Length Block](Length_Block.png) |
-| `    ` (Whitespace) | Trimmed automatically, then rejected by Zod minimum length constraint (2). | ![Empty Block](Empty_Block.png) |
+| `<script>alert(1)</script>` | Rejected by Zod regex rules on the `/api/research` API edge. Returns HTTP 400. | ![XSS Block](../ScreenShots/XSS_Block.png) |
+| `DROP TABLE users` | Handled by LLM entity verification. Identified as non-financial. Graph routes to `insufficientData`. | ![SQLi Block](../ScreenShots/SQLI_Block.png) |
+| `Apple Tesla` | Intercepted by multi-company heuristic in Zod. Instructs the user to search one entity at a time. | ![Multi Block](../ScreenShots/Multi_Block.png) |
+| `[5000-character string]` | Rejected by Zod maximum length constraint (100). Prevents Gemini token exhaustion. | ![Length Block](../ScreenShots/Length_Block.png) |
+| `    ` (Whitespace) | Trimmed automatically, then rejected by Zod minimum length constraint (2). | ![Empty Block](../ScreenShots/Empty_Block.png) |
 
 ---
 
@@ -137,7 +137,7 @@ The primary deliverable of the VestPulse application is the interactive frontend
 - **Evidence & Report**: Scrollable Markdown component containing the deep dive analysis.
 - **Recent Searches**: Pill buttons populated from `LocalStorage` allowing instant cache-hits for previously researched tickers.
 
-![Complete Dashboard Layout](dashboard.png)
+![Complete Dashboard Layout](../ScreenShots/dashboard.png)
 *Figure 8.1: Structural wireframe and implementation of the VestPulse dashboard.*
 
 ---
@@ -154,7 +154,7 @@ The application features a robust, client-side PDF generation engine designed to
 - **Competitor Analysis**: Positioning matrices against primary industry peers.
 - **Sources**: Appended hyperlinks tracing the data back to Tavily, FMP, or Yahoo Finance.
 
-![PDF Export Preview](pdf.png)
+![PDF Export Preview](../ScreenShots/pdf.png)
 *Figure 9.1: The paginated A4 layout generated by the client-side engine.*
 
 ---

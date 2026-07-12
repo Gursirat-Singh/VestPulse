@@ -38,7 +38,7 @@ By leveraging advanced large language models (LLMs) orchestrated via a directed 
 
 ## Key Decisions & Trade-offs
 
-*(For detailed architectural justifications, see [DESIGN_DECISIONS.md](DESIGN_DECISIONS.md))*
+*(For detailed architectural justifications, see [DESIGN_DECISIONS.md](documentation/DESIGN_DECISIONS.md))*
 
 - **Next.js & Serverless**: Adopted Next.js App Router to unify frontend and backend, using Serverless API Routes to securely mask API keys and stream Server-Sent Events (SSE).
 - **LangGraph Orchestration**: Chose LangGraph over linear chains to enable deterministic state transitions, native parallel execution of data-gathering nodes, and localized retry logic.
@@ -256,7 +256,7 @@ VestPulse is designed for production deployment, inherently protecting against m
 
 ## 15. Example Runs
 
-*(For full visual workflows and edge-case handling, see [EXAMPLES.md](EXAMPLES.md))*
+*(For full visual workflows and edge-case handling, see [EXAMPLES.md](documentation/EXAMPLES.md))*
 
 ### 1. Apple (AAPL) - Mega-Cap Tech
 **Input**: User enters `Apple`
@@ -307,13 +307,13 @@ The LLM evaluates Apple's strong free cash flow against regulatory headwinds (DO
 
 ## 16. Screenshots
 
-![Landing Page](home.png)
+![Landing Page](ScreenShots/home.png)
 *VestPulse Landing Page with search functionality.*
 
-![Research Dashboard](dashboard.png)
+![Research Dashboard](ScreenShots/dashboard.png)
 *Real-time AI research dashboard with financial aggregates.*
 
-![Generated PDF Report](pdf.png)
+![Generated PDF Report](ScreenShots/pdf.png)
 *Dynamically generated, paginated investment PDF report.*
 
 ## 17. Deployment
