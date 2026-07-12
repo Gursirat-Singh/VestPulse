@@ -25,8 +25,8 @@ export function Hero() {
     if (searchQuery.trim()) {
       const result = companyInputSchema.safeParse(searchQuery.trim());
       if (!result.success) {
-        setError(result.error.errors[0].message);
-        return;
+        result.error.issues[0]?.message ??
+          "Please enter a valid company name."
       }
       router.push(`/analyze?company=${encodeURIComponent(searchQuery.trim())}`);
     }

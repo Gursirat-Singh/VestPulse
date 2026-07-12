@@ -178,7 +178,7 @@ export const PDFReportView = forwardRef(function PDFReportView(
   ];
 
   // Header template
-  const renderHeader = (pageNum: number) => (
+  const renderHeader = (isCover: boolean) => (
     <div className="flex justify-between items-center border-b border-zinc-200 pb-3 mb-6 select-none">
       <div className="flex items-center space-x-2">
         <img
@@ -191,16 +191,16 @@ export const PDFReportView = forwardRef(function PDFReportView(
         </span>
       </div>
       <span className="text-xs font-extrabold text-zinc-500 uppercase tracking-widest">
-        {pageNum === 1 ? "Investment Report Overview" : `${profile?.companyName || "Company Report"} (${profile?.ticker || "N/A"})`}
+        {isCover ? "Investment Report Overview" : `${profile?.companyName || "Company Report"} (${profile?.ticker || "N/A"})`}
       </span>
     </div>
   );
 
   // Footer template
-  const renderFooter = (pageNum: number) => (
+  const renderFooter = () => (
     <div className="absolute bottom-6 left-12 right-12 flex justify-between items-center border-t border-zinc-200 pt-3 text-[11px] font-bold text-zinc-400 uppercase tracking-widest select-none">
       <span></span>
-      <span>Page {pageNum} of 6</span>
+      <span className="page-number-placeholder"></span>
     </div>
   );
 
@@ -218,12 +218,15 @@ export const PDFReportView = forwardRef(function PDFReportView(
       }}
       className="pdf-report-container"
     >
-      {/* PAGE 1: COVER & EXECUTIVE SUMMARY */}
-      <div className="pdf-page relative w-[794px] h-[1123px] p-12 bg-[#f8fafc] flex flex-col justify-between box-border overflow-hidden">
-        <div>
-          {renderHeader(1)}
-          
-          <div className="flex justify-between items-start mt-4 mb-8">
+      <div id="pdf-header-cover" className="hidden">{renderHeader(true)}</div>
+      <div id="pdf-header-standard" className="hidden">{renderHeader(false)}</div>
+      <div id="pdf-footer-template" className="hidden">{renderFooter()}</div>
+
+      <div className="pdf-source-sections">
+        
+        {/* Cover / Title Section */}
+        <div className="pdf-section mb-6">
+          <div className="flex justify-between items-start mt-4 mb-4">
             <div className="space-y-3">
               <h1 className="text-5xl font-extrabold text-zinc-900 tracking-tight leading-none">
                 {profile?.companyName || "NVIDIA Corporation"}
@@ -242,9 +245,11 @@ export const PDFReportView = forwardRef(function PDFReportView(
               />
             )}
           </div>
+        </div>
 
-          {/* Verdict Gauge Section */}
-          <div className="flex flex-col gap-6 bg-white border border-slate-200 shadow-sm rounded-3xl p-8 mb-8">
+        {/* Verdict Gauge Section */}
+        <div className="pdf-section mb-8">
+          <div className="flex flex-col gap-6 bg-white border border-slate-200 shadow-sm rounded-3xl p-8">
             <div className="space-y-4">
               <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest block">
                 Investment Verdict
@@ -283,9 +288,11 @@ export const PDFReportView = forwardRef(function PDFReportView(
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Executive Summary Narrative */}
-          <div className="space-y-4 mb-8">
+        {/* Executive Summary Narrative */}
+        <div className="pdf-section mb-8">
+          <div className="space-y-4">
             <h3 className="text-sm font-extrabold text-zinc-500 uppercase tracking-wider">
               Executive Summary
             </h3>
@@ -293,8 +300,10 @@ export const PDFReportView = forwardRef(function PDFReportView(
               {data.reasoning?.split("\n\n")[0] || "No executive summary available."}
             </p>
           </div>
+        </div>
 
-          {/* Highlight Cards Grid */}
+        {/* Highlight Cards Grid */}
+        <div className="pdf-section mb-8">
           <div className="grid grid-cols-4 gap-4">
             {[
               { title: "Strong Growth", desc: "Solid revenue and earning catalysts.", iconColor: "text-emerald-600 bg-emerald-50 border-emerald-100" },
@@ -311,16 +320,10 @@ export const PDFReportView = forwardRef(function PDFReportView(
             ))}
           </div>
         </div>
-        {renderFooter(1)}
-      </div>
 
-      {/* PAGE 2: FINANCIAL STATEMENTS & BAR CHART */}
-      <div className="pdf-page relative w-[794px] h-[1123px] p-12 bg-[#f8fafc] flex flex-col justify-between box-border overflow-hidden">
-        <div>
-          {renderHeader(2)}
-          
-          {/* Section 2: Financial Overview Table */}
-          <div className="space-y-4 mb-8">
+        {/* Section 2: Financial Overview Table */}
+        <div className="pdf-section mb-8">
+          <div className="space-y-4">
             <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
               2. Financial Overview (TTM)
             </h3>
@@ -338,7 +341,7 @@ export const PDFReportView = forwardRef(function PDFReportView(
                   {financialRows.map((row, idx) => {
                     const isPositive = row.yoy !== null && row.yoy >= 0;
                     return (
-                      <tr key={idx} className="hover:bg-zinc-50/50">
+                      <tr key={idx} className="hover:bg-zinc-50/50 bg-white">
                         <td className="px-4 py-3 font-bold text-zinc-700">{row.metric}</td>
                         <td className="px-4 py-3 text-right font-mono font-extrabold text-zinc-800">{row.value}</td>
                         <td className={`px-4 py-3 text-right font-mono font-extrabold ${
@@ -370,8 +373,10 @@ export const PDFReportView = forwardRef(function PDFReportView(
               </table>
             </div>
           </div>
+        </div>
 
-          {/* Section 3: Revenue & Net Income Bar Chart */}
+        {/* Section 3: Revenue & Net Income Bar Chart */}
+        <div className="pdf-section mb-8">
           <div className="space-y-4">
             <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
               3. Revenue & Net Income Trend
@@ -401,16 +406,10 @@ export const PDFReportView = forwardRef(function PDFReportView(
             </div>
           </div>
         </div>
-        {renderFooter(2)}
-      </div>
 
-      {/* PAGE 3: RADAR CHART, RATIOS, & TARGET GAUGE */}
-      <div className="pdf-page relative w-[794px] h-[1123px] p-12 bg-[#f8fafc] flex flex-col justify-between box-border overflow-hidden">
-        <div>
-          {renderHeader(3)}
-          
-          <div className="grid grid-cols-2 gap-8 mb-8">
-            {/* Section 4: Radar chart */}
+        {/* Section 4: Radar chart & Valuation Ratios */}
+        <div className="pdf-section mb-8">
+          <div className="grid grid-cols-2 gap-8">
             <div className="space-y-4">
               <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
                 4. Financial Health
@@ -425,7 +424,6 @@ export const PDFReportView = forwardRef(function PDFReportView(
               </div>
             </div>
 
-            {/* Section 5: Valuation Ratios */}
             <div className="space-y-4">
               <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
                 5. Valuation Ratios
@@ -464,8 +462,10 @@ export const PDFReportView = forwardRef(function PDFReportView(
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Section 6: Analyst Price Target Slider */}
+        {/* Section 6: Analyst Price Target Slider */}
+        <div className="pdf-section mb-8">
           <div className="space-y-4">
             <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
               6. Analyst Price Target
@@ -508,16 +508,10 @@ export const PDFReportView = forwardRef(function PDFReportView(
             </div>
           </div>
         </div>
-        {renderFooter(3)}
-      </div>
 
-      {/* PAGE 4: NEWS SENTIMENT, HEADLINES, & KEY RISKS */}
-      <div className="pdf-page relative w-[794px] h-[1123px] p-12 bg-[#f8fafc] flex flex-col justify-between box-border overflow-hidden">
-        <div>
-          {renderHeader(4)}
-          
-          <div className="grid grid-cols-2 gap-8 mb-8">
-            {/* Section 7: News Sentiment Donut */}
+        {/* Section 7: News Sentiment & Headlines */}
+        <div className="pdf-section mb-8">
+          <div className="grid grid-cols-2 gap-8">
             <div className="space-y-4">
               <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
                 7. News Sentiment (Last 30 Days)
@@ -551,7 +545,6 @@ export const PDFReportView = forwardRef(function PDFReportView(
               </div>
             </div>
 
-            {/* Section 8: Recent News Headlines */}
             <div className="space-y-4">
               <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
                 8. Recent News Headlines
@@ -574,8 +567,10 @@ export const PDFReportView = forwardRef(function PDFReportView(
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Section 9: Key Risks List */}
+        {/* Section 9: Key Risks List */}
+        <div className="pdf-section mb-8">
           <div className="space-y-4">
             <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
               9. Key Risks
@@ -595,16 +590,10 @@ export const PDFReportView = forwardRef(function PDFReportView(
             </div>
           </div>
         </div>
-        {renderFooter(4)}
-      </div>
 
-      {/* PAGE 5: COMPETITIVE LANDSCAPE & THESIS */}
-      <div className="pdf-page relative w-[794px] h-[1123px] p-12 bg-[#f8fafc] flex flex-col justify-between box-border overflow-hidden">
-        <div>
-          {renderHeader(5)}
-          
-          {/* Section 10: Competitive Landscape Matrix */}
-          <div className="space-y-4 mb-8">
+        {/* Section 10: Competitive Landscape Matrix */}
+        <div className="pdf-section mb-8">
+          <div className="space-y-4">
             <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
               10. Competitive Landscape
             </h3>
@@ -633,8 +622,10 @@ export const PDFReportView = forwardRef(function PDFReportView(
               </table>
             </div>
           </div>
+        </div>
 
-          {/* Section 11: Investment Thesis Checklist */}
+        {/* Section 11: Investment Thesis Checklist */}
+        <div className="pdf-section mb-8">
           <div className="space-y-4">
             <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
               11. Investment Thesis
@@ -651,16 +642,10 @@ export const PDFReportView = forwardRef(function PDFReportView(
             </div>
           </div>
         </div>
-        {renderFooter(5)}
-      </div>
 
-      {/* PAGE 6: CONCLUSION & SOURCES */}
-      <div className="pdf-page relative w-[794px] h-[1123px] p-12 bg-[#f8fafc] flex flex-col justify-between box-border overflow-hidden">
-        <div>
-          {renderHeader(6)}
-          
-          {/* Section 12: Detailed Investment Verdict */}
-          <div className="space-y-4 mb-8">
+        {/* Section 12: Detailed Investment Verdict */}
+        <div className="pdf-section mb-8">
+          <div className="space-y-4">
             <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
               12. Investment Verdict
             </h3>
@@ -696,8 +681,10 @@ export const PDFReportView = forwardRef(function PDFReportView(
               </div>
             </div>
           </div>
+        </div>
 
-          {/* Section 13: Citations & Sources */}
+        {/* Section 13: Citations & Sources */}
+        <div className="pdf-section mb-8">
           <div className="space-y-4">
             <h3 className="text-base font-extrabold text-zinc-800 uppercase tracking-wider">
               13. Sources Cited
@@ -710,12 +697,12 @@ export const PDFReportView = forwardRef(function PDFReportView(
                 ].filter(Boolean))).slice(0, 7).map((url, idx) => {
                   let hostname = "Source";
                   try {
-                    hostname = new URL(url).hostname.replace("www.", "");
+                    hostname = new URL(url as string).hostname.replace("www.", "");
                   } catch {}
                   return (
                     <div key={idx} className="text-xs text-zinc-500 font-extrabold flex items-center space-x-1.5">
                       <span className="text-zinc-300 font-extrabold">•</span>
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="hover:underline text-emerald-600 leading-none">
+                      <a href={url as string} target="_blank" rel="noopener noreferrer" className="hover:underline text-emerald-600 leading-none">
                         {hostname}
                       </a>
                     </div>
@@ -725,9 +712,8 @@ export const PDFReportView = forwardRef(function PDFReportView(
             </div>
           </div>
         </div>
-        {renderFooter(6)}
-      </div>
 
+      </div>
     </div>
   );
 });

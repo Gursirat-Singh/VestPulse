@@ -40,8 +40,8 @@ export function PremiumSearchBar({ onSubmit, disabled, initialValue = "", recent
     if (input.trim() && !disabled) {
       const result = companyInputSchema.safeParse(input.trim());
       if (!result.success) {
-        setError(result.error.errors[0].message);
-        return;
+        result.error.issues[0]?.message ??
+          "Please enter a valid company name."
       }
       onSubmit(input.trim());
       setShowDropdown(false);
@@ -132,9 +132,8 @@ export function PremiumSearchBar({ onSubmit, disabled, initialValue = "", recent
                 setShowDropdown(false);
               }}
               onMouseEnter={() => setFocusedIndex(index)}
-              className={`w-full text-left px-4 py-3 flex justify-between items-center text-sm transition-colors ${
-                index === focusedIndex ? "bg-slate-900/60 text-slate-100" : "text-slate-400"
-              }`}
+              className={`w-full text-left px-4 py-3 flex justify-between items-center text-sm transition-colors ${index === focusedIndex ? "bg-slate-900/60 text-slate-100" : "text-slate-400"
+                }`}
             >
               <div>
                 <span className="font-medium text-slate-200">{item.companyName}</span>

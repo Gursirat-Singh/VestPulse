@@ -70,20 +70,91 @@ export function ExportDropdown({ markdownContent, reportRef, companyName, result
     setIsExportingPDF(true);
     setIsOpen(false);
 
+    let clone: HTMLElement | null = null;
     try {
-      const pageElements = pdfContainerRef.current.querySelectorAll(".pdf-page");
-      if (pageElements.length === 0) {
-        throw new Error("No PDF pages found in DOM template.");
+      const container = pdfContainerRef.current;
+      clone = container.cloneNode(true) as HTMLElement;
+      
+      // Setup clone for off-screen rendering
+      document.body.appendChild(clone);
+      clone.style.position = "absolute";
+      clone.style.left = "-99999px";
+      clone.style.top = "0px";
+      clone.style.display = "block";
+      clone.style.visibility = "visible";
+      
+      const sections = Array.from(clone.querySelectorAll(".pdf-section"));
+      const headerCover = clone.querySelector("#pdf-header-cover")?.firstElementChild;
+      const headerStandard = clone.querySelector("#pdf-header-standard")?.firstElementChild;
+      const footerTemplate = clone.querySelector("#pdf-footer-template")?.firstElementChild;
+      
+      const pages: HTMLElement[] = [];
+      const PAGE_HEIGHT = 1123;
+      const CONTENT_MAX_HEIGHT = PAGE_HEIGHT - 96; // 1123 - 48(pt) - 48(pb)
+      
+      const createNewPage = (isFirstPage: boolean) => {
+        const page = document.createElement("div");
+        page.className = "pdf-page relative w-[794px] h-[1123px] p-12 bg-[#f8fafc] flex flex-col justify-between box-border overflow-hidden";
+        
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "pdf-page-content w-full";
+        
+        const header = isFirstPage ? headerCover?.cloneNode(true) : headerStandard?.cloneNode(true);
+        if (header) contentDiv.appendChild(header);
+        
+        page.appendChild(contentDiv);
+        
+        const footer = footerTemplate?.cloneNode(true) as HTMLElement;
+        if (footer) page.appendChild(footer);
+        
+        pages.push(page);
+        clone!.appendChild(page);
+        return { page, contentDiv };
+      };
+      
+      let { page, contentDiv } = createNewPage(true);
+      let currentContentContainer = contentDiv;
+      let currentHeight = currentContentContainer.getBoundingClientRect().height;
+      
+      for (let i = 0; i < sections.length; i++) {
+        const sec = sections[i] as HTMLElement;
+        sec.style.display = "block";
+        currentContentContainer.appendChild(sec);
+        
+        const secHeight = sec.getBoundingClientRect().height + 32; // add buffer for margin-bottom
+        
+        if (currentHeight + secHeight > CONTENT_MAX_HEIGHT && currentHeight > 150) {
+           currentContentContainer.removeChild(sec);
+           
+           const newPage = createNewPage(false);
+           currentContentContainer = newPage.contentDiv;
+           currentHeight = currentContentContainer.getBoundingClientRect().height;
+           
+           currentContentContainer.appendChild(sec);
+           currentHeight += secHeight;
+        } else {
+           currentHeight += secHeight;
+        }
       }
-
+      
+      // Update footer page numbers
+      pages.forEach((p, index) => {
+         const pageNumSpan = p.querySelector(".page-number-placeholder");
+         if (pageNumSpan) {
+            pageNumSpan.textContent = `Page ${index + 1} of ${pages.length}`;
+         }
+      });
+      
+      // Hide the source sections container so it doesn't affect document bounds
+      const sourceContainer = clone.querySelector(".pdf-source-sections") as HTMLElement;
+      if (sourceContainer) sourceContainer.style.display = "none";
+      
       const pdf = new jsPDF("p", "mm", "a4");
-      const pdfWidth = 210; // A4 width in mm
-      const pdfHeight = 297; // A4 height in mm
-
-      for (let i = 0; i < pageElements.length; i++) {
-        const pageEl = pageElements[i] as HTMLElement;
-
-        // Capture page as PNG at high resolution (3x scale for clarity)
+      const pdfWidth = 210;
+      const pdfHeight = 297;
+      
+      for (let i = 0; i < pages.length; i++) {
+        const pageEl = pages[i];
         const scale = 3;
         const imgData = await domtoimage.toPng(pageEl, {
           bgcolor: "#ffffff",
@@ -94,20 +165,23 @@ export function ExportDropdown({ markdownContent, reportRef, companyName, result
             transformOrigin: "top left"
           }
         });
-
+        
         if (i > 0) {
           pdf.addPage();
         }
-
+        
         pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
       }
-
-      pdf.save(`${companyName.replace(/\s+/g, "_")}_Investment_Report.pdf`);
+      
+      pdf.save(`${companyName.replace(/\\s+/g, "_")}_Investment_Report.pdf`);
       toast.success("PDF downloaded successfully.");
     } catch (err) {
       console.error("PDF generation error:", err);
       toast.error("Failed to generate PDF.");
     } finally {
+      if (clone && document.body.contains(clone)) {
+         document.body.removeChild(clone);
+      }
       setIsExportingPDF(false);
     }
   };
