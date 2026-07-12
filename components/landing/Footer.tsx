@@ -97,17 +97,6 @@ export function Footer() {
           <p className="text-slate-600 font-mono text-[11px]">
             &copy; {new Date().getFullYear()} VestPulse. All rights reserved.
           </p>
-
-          <div className="flex items-center space-x-6">
-            <a href="#" className="text-slate-500 hover:text-accent-violet transition-colors duration-200 relative group">
-              Privacy Policy
-              <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-accent-violet/50 group-hover:w-full transition-all duration-200" />
-            </a>
-            <a href="#" className="text-slate-500 hover:text-accent-violet transition-colors duration-200 relative group">
-              Terms of Service
-              <span className="absolute -bottom-0.5 left-0 w-0 h-[1px] bg-accent-violet/50 group-hover:w-full transition-all duration-200" />
-            </a>
-          </div>
         </motion.div>
       </div>
     </footer>
